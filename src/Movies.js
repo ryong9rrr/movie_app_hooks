@@ -1,18 +1,52 @@
-import React, { useState, useEffect } from "react";
-import axios from "axios";
+import { useState, useEffect } from "react";
+import defaultAxios from "axios";
 
-const URL =
-  "https://yts-proxy.nomadcoders1.now.sh/list_movies.json?sort_by=rating";
+const Movies = (opts, axiosInstance = defaultAxios) => {
+  const [num, setNum] = useState(0);
 
-const Movies = () => {
-  const [data, setData] = useState([]);
+  const [state, setState] = useState({
+    loading: true,
+    movies: null,
+    error: null,
+  });
 
-  useEffect(async () => {
-    const response = await axios.get(URL);
-    setData(response.data.data.movies);
-  }, []);
+  const refetch = () => {
+    setState({
+      ...state,
+      loading: true,
+    });
+    setNum(Math.random());
+  };
 
-  return data.map((movie, index) => <li key={index}>{movie.title}</li>);
+  useEffect(() => {
+    axiosInstance(opts)
+      .then((res) => {
+        setState({
+          ...state,
+          loading: false,
+          movies: res.data.data.movies,
+        });
+      })
+      .catch((error) => {
+        setState({
+          ...state,
+          loading: true,
+          error,
+        });
+      });
+  }, [num]);
+
+  const renderingSummary = (summary) => {
+    let summaryLength = summary.length;
+    if (summaryLength > 180) {
+      summary = `${summary.slice(0, 180)}...`;
+    } else {
+      summary = summary;
+    }
+    return summary;
+  };
+
+  return { ...state, refetch, renderingSummary };
 };
 
 export default Movies;

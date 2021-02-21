@@ -14,9 +14,7 @@ const GetMovies = (opts, axiosInstance = defaultAxios) => {
         setState({
           ...state,
           loading: false,
-          movies: res.data.data.movies.map((movie, index) => (
-            <li key={index}>{movie.title}</li>
-          )),
+          movies: res.data.data.movies,
         });
       })
       .catch((error) => {
